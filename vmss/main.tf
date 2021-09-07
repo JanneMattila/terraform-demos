@@ -43,3 +43,49 @@ resource "azurerm_subnet" "backend-subnet" {
   virtual_network_name = azurerm_virtual_network.main-vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 }
+
+resource "azurerm_linux_virtual_machine_scale_set" "front-vmss" {
+  name                            = "front-vmss"
+  resource_group_name             = azurerm_resource_group.rg.name
+  location                        = azurerm_resource_group.rg.location
+  sku                             = "Standard_D4d_v4" # https://docs.microsoft.com/en-us/azure/virtual-machines/sizes
+  instances                       = 3
+  admin_username                  = var.vm_username
+  admin_password                  = var.vm_password
+  disable_password_authentication = false
+  zones                           = [1, 2, 3]
+  zone_balance                    = true
+  overprovision                   = true
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "16.04-LTS"
+    version   = "latest"
+  }
+
+  network_interface {
+    name                          = "nic"
+    primary                       = true
+    enable_accelerated_networking = true
+
+    ip_configuration {
+      name      = "public1"
+      primary   = true
+      subnet_id = azurerm_subnet.front-subnet.id
+
+      public_ip_address {
+        name = "pip"
+      }
+    }
+  }
+
+  os_disk {
+    storage_account_type = "Standard_LRS" # https://docs.microsoft.com/en-us/azure/virtual-machines/disks-types
+    caching              = "ReadOnly"
+
+    diff_disk_settings {
+      option = "Local"
+    }
+  }
+}

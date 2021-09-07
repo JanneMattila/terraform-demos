@@ -1,4 +1,4 @@
-# Virtual machine scale-set (VMSS)
+# Virtual machine scale set (VMSS)
 
 ## Relevant links
 
