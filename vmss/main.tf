@@ -77,10 +77,14 @@ resource "azurerm_linux_virtual_machine_scale_set" "front-vmss" {
       public_ip_address {
         name = "pip"
 
-        # Sep 2021: terraform does not have support for 
-        # Setting up 'sku' for public IP
-        # Ref. ARM: https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/2021-04-01/virtualmachinescalesets?tabs=bicep#virtualmachinescalesetpublicipaddressconfiguration
-        # Therefore, you cannot use (yet) routing preferences (you'll get 'BasicSkuPublicIPAddressDoesNotSupportRoutingPreference' error)
+        # Sep 2021: Terraform does not have support for 
+        #           Setting up 'sku' for public IP
+        # Ref. ARM: 
+        # https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/2021-04-01/virtualmachinescalesets?tabs=bicep#virtualmachinescalesetpublicipaddressconfiguration
+        #
+        # Therefore, you cannot use (yet) routing preferences (you'll get 'BasicSkuPublicIPAddressDoesNotSupportRoutingPreference' error).
+        # You would need "Standard" Public IP:
+        # sku = "Standard"
         # ip_tag {
         #   type = "RoutingPreference"
         #   tag  = "Internet"
