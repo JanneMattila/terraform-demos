@@ -89,6 +89,9 @@ resource "azurerm_linux_virtual_machine_scale_set" "front-vmss" {
         #   type = "RoutingPreference"
         #   tag  = "Internet"
         # }
+        #
+        # See this issue for further discussion on the topic:
+        # https://github.com/hashicorp/terraform-provider-azurerm/issues/13250
       }
     }
   }
