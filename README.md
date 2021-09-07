@@ -1,1 +1,1 @@
-# terraform-demos
+# Terraform demos
