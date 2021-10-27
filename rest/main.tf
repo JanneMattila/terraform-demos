@@ -23,22 +23,23 @@ provider "azurerm" {
 }
 
 provider "restapi" {
-  alias = "restapi_echo"
-  uri   = "https://echo.jannemattila.com/"
-  debug = true
+  alias                = "restapi_echo"
+  uri                  = "http://127.0.0.1:8080/"
+  debug                = true
+  write_returns_object = true
 
   headers = {
     Authorization = var.bearer_token
   }
 
   create_method  = "POST"
-  update_method  = "POST"
-  destroy_method = "POST"
+  update_method  = "PUT"
+  destroy_method = "DELETE"
 }
 
 resource "restapi_object" "echo" {
   provider     = restapi.restapi_echo
-  path         = "/api/echo?id={id}"
+  path         = "/api/objects/{id}"
   id_attribute = var.ID
   object_id    = var.ID
   data         = "{ \"message\": \"This is from terraform: ${var.ID}\" }"
