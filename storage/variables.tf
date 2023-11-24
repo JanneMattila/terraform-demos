@@ -1,11 +1,12 @@
-variable "resource_group_name" {
-  default = "rg-tf-storage"
-}
+variable "location" {}
 
-variable "resource_group_location" {
-  default = "north europe"
-}
+variable "resource_group_name" {}
 
-variable "storage_name" {
-  default = "jannetfdemo0000010"
+variable "storage_name" {}
+
+variable "additional_resource_groups" {
+  type = map(object({
+    name = string
+    tags = optional(map(string), {})
+  }))
 }

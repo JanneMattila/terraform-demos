@@ -1,33 +1,14 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~>2.0"
-    }
-  }
-  backend "azurerm" {
-  }
-}
 
-provider "azurerm" {
-  features {}
 
-  # For service principals
-  #   subscription_id = "<azure_subscription_id>"
-  #   tenant_id       = "<azure_subscription_tenant_id>"
-  #   client_id       = "<service_principal_appid>"
-  #   client_secret   = "<service_principal_password>"
-}
-
-resource "azurerm_resource_group" "rg" {
+resource "azurerm_resource_group" "resource_group" {
   name     = var.resource_group_name
-  location = var.resource_group_location
+  location = var.location
 }
 
-resource "azurerm_storage_account" "example" {
+resource "azurerm_storage_account" "storage" {
   name                     = var.storage_name
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
+  resource_group_name      = azurerm_resource_group.resource_group.name
+  location                 = azurerm_resource_group.resource_group.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
@@ -35,4 +16,12 @@ resource "azurerm_storage_account" "example" {
     default_action = "Deny"
     ip_rules       = []
   }
+}
+
+module "name" {
+  source = "./network"
+
+  location            = azurerm_resource_group.resource_group.location
+  resource_group_name = azurerm_resource_group.resource_group.name
+  route_table_name    = var.route_table_name
 }
