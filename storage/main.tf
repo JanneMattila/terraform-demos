@@ -55,4 +55,10 @@ resource "azurerm_resource_group" "rg" {
 
   name = each.key
   tags = each.value.tags
+
+  # lifecycle {
+  #   ignore_changes = [
+  #     tags
+  #   ]
+  # }
 }

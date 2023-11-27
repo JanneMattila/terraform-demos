@@ -7,7 +7,6 @@ $storageName = "jannedeploy000020"
 $containerName = "tfstate"
 $stateKeyName = "demo.terraform.state"
 
-
 az group create --name $resourceGroupName --location northeurope
 az storage account create --resource-group $resourceGroupName --name $storageName --sku Standard_LRS
 az storage container create --name "tfstate" --account-name $storageName --resource-group $resourceGroupName
