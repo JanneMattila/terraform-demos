@@ -35,9 +35,25 @@ resource "azurerm_storage_account" "storage" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
+  public_network_access_enabled = false
   network_rules {
-    default_action = "Deny"
-    ip_rules       = []
+    default_action             = "Deny"
+    ip_rules                   = []
+    virtual_network_subnet_ids = []
+  }
+}
+
+resource "azurerm_private_endpoint" "storage_pe" {
+  name                = "pe-storage"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.resource_group.name
+  subnet_id           = azurerm_virtual_network.vnet.subnet.*.id[0]
+
+  private_service_connection {
+    name                           = "pe-storage-privateserviceconnection"
+    private_connection_resource_id = azurerm_storage_account.storage.id
+    subresource_names              = ["blob"]
+    is_manual_connection           = false
   }
 }
 
