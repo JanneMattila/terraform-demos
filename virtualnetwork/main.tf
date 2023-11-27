@@ -27,14 +27,14 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 resource "azurerm_virtual_network_peering" "spoke_to_hub" {
-  name                      = "${var.hub_vnet_config[var.hub_vnet].virtual_network_name}-to-${azurerm_virtual_network.vnet.name}"
+  name                      = "${azurerm_virtual_network.vnet.name}-to-${var.hub_vnet_config[var.hub_vnet].virtual_network_name}"
   resource_group_name       = azurerm_resource_group.resource_group.name
   virtual_network_name      = azurerm_virtual_network.vnet.name
   remote_virtual_network_id = "/subscriptions/${var.hub_vnet_config[var.hub_vnet].subscription_id}/resourceGroups/${var.hub_vnet_config[var.hub_vnet].resource_group_name}/providers/Microsoft.Network/virtualNetworks/${var.hub_vnet_config[var.hub_vnet].virtual_network_name}"
 }
 
 resource "azurerm_virtual_network_peering" "hub_to_spoke" {
-  name                      = "${azurerm_virtual_network.vnet.name}-to-${var.hub_vnet_config[var.hub_vnet].virtual_network_name}"
+  name                      = "${var.hub_vnet_config[var.hub_vnet].virtual_network_name}-to-${azurerm_virtual_network.vnet.name}"
   resource_group_name       = var.hub_vnet_config[var.hub_vnet].resource_group_name
   virtual_network_name      = var.hub_vnet_config[var.hub_vnet].virtual_network_name
   remote_virtual_network_id = azurerm_virtual_network.vnet.id

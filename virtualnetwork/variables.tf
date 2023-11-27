@@ -24,5 +24,10 @@ variable "hub_vnet_config" {
       resource_group_name  = "rg-hub"
       virtual_network_name = "vnet-hub"
     }
+    we = {
+      subscription_id      = "<subscription_id>"
+      resource_group_name  = "rg-hub"
+      virtual_network_name = "vnet-hub"
+    }
   }
 }
