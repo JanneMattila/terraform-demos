@@ -1,8 +1,8 @@
 # Select demo folder
-cd rest
+Set-Location rest
 
 # Init terraform
-terraform init 
+terraform init
 
 # Format & Validate
 terraform fmt

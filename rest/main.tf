@@ -1,30 +1,6 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~>2.0"
-    }
-    restapi = {
-      source = "KirillMeleshko/restapi"
-      # source  = "github.com/mastercard/restapi"
-      version = "1.16.0"
-    }
-  }
-}
-
-provider "azurerm" {
-  features {}
-
-  # For service principals
-  #   subscription_id = "<azure_subscription_id>"
-  #   tenant_id       = "<azure_subscription_tenant_id>"
-  #   client_id       = "<service_principal_appid>"
-  #   client_secret   = "<service_principal_password>"
-}
-
 provider "restapi" {
-  alias                = "restapi_echo"
-  uri                  = "http://127.0.0.1:8080/"
+  alias                = "restapi_myip"
+  uri                  = "https://api.ipify.org"
   debug                = true
   write_returns_object = true
 
@@ -32,17 +8,18 @@ provider "restapi" {
     Authorization = var.bearer_token
   }
 
-  create_method  = "POST"
-  update_method  = "PUT"
-  destroy_method = "DELETE"
+  create_method  = "GET"
+  update_method  = "GET"
+  destroy_method = "GET"
 }
 
-resource "restapi_object" "echo" {
-  provider     = restapi.restapi_echo
-  path         = "/api/objects/{id}"
-  id_attribute = var.ID
-  object_id    = var.ID
-  data         = "{ \"message\": \"This is from terraform: ${var.ID}\" }"
+resource "restapi_object" "myip" {
+  provider     = restapi.restapi_myip
+  query_string = "format=json"
+  path         = "/"
+  id_attribute = "ip"
+  object_id    = "ip"
+  data         = ""
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -59,6 +36,8 @@ resource "azurerm_storage_account" "example" {
 
   network_rules {
     default_action = "Deny"
-    ip_rules       = []
+    ip_rules = [
+      restapi_object.myip.api_data["ip"]
+    ]
   }
 }
