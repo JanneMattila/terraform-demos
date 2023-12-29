@@ -3,27 +3,50 @@ resource "azurerm_resource_group" "resource_group" {
   location = var.location
 }
 
+resource "azurerm_network_security_group" "nsg" {
+  for_each = var.network_security_groups
+
+  name                = each.value.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.resource_group.name
+
+  dynamic "security_rule" {
+    for_each = each.value.security_rules
+    content {
+      name                       = security_rule.value.name
+      access                     = security_rule.value.access
+      direction                  = security_rule.value.direction
+      priority                   = security_rule.value.priority
+      protocol                   = security_rule.value.protocol
+      source_port_range          = security_rule.value.source_port_range
+      destination_port_range     = security_rule.value.destination_port_range
+      source_address_prefix      = security_rule.value.source_address_prefix
+      destination_address_prefix = security_rule.value.destination_address_prefix
+    }
+  }
+}
+
 resource "azurerm_virtual_network" "vnet" {
   name                = var.virtual_network_name
   location            = var.location
   resource_group_name = azurerm_resource_group.resource_group.name
   address_space       = ["10.0.0.0/16"]
 
-  subnet {
-    name           = "snet-1"
-    address_prefix = "10.0.0.0/24"
+
+  dynamic "subnet" {
+    for_each = var.subnets
+    content {
+      name           = subnet.value.name
+      address_prefix = subnet.value.address_prefix
+      security_group = azurerm_network_security_group.nsg[subnet.value.network_security_group].id
+    }
   }
 
-  subnet {
-    name           = "snet-2"
-    address_prefix = "10.0.1.0/24"
-  }
-
-  lifecycle {
-    ignore_changes = [
-      subnet
-    ]
-  }
+  # lifecycle {
+  #   ignore_changes = [
+  #     subnet
+  #   ]
+  # }
 }
 
 resource "azurerm_virtual_network_peering" "spoke_to_hub" {
