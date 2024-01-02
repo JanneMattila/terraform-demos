@@ -36,7 +36,8 @@ variable "subnets" {
   type = map(object({
     name                   = string
     address_prefix         = string
-    network_security_group = string
+    network_security_group = optional(string)
+    route_table            = optional(string)
   }))
 }
 
@@ -53,6 +54,18 @@ variable "network_security_groups" {
       destination_port_range     = string
       source_address_prefix      = string
       destination_address_prefix = string
+    }))
+  }))
+}
+
+variable "user_defined_routes" {
+  type = map(object({
+    name = string
+    routes = list(object({
+      name                   = string
+      address_prefix         = string
+      next_hop_type          = string
+      next_hop_in_ip_address = string
     }))
   }))
 }

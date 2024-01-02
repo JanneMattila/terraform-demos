@@ -33,7 +33,7 @@ network_security_groups = {
         access                     = "Allow"
         protocol                   = "Tcp"
         source_port_range          = "*"
-        destination_port_range     = "*"
+        destination_port_range     = "1234"
         source_address_prefix      = "*"
         destination_address_prefix = "*"
       },
@@ -44,7 +44,7 @@ network_security_groups = {
         access                     = "Allow"
         protocol                   = "Tcp"
         source_port_range          = "*"
-        destination_port_range     = "*"
+        destination_port_range     = "5000"
         source_address_prefix      = "*"
         destination_address_prefix = "*"
       }
@@ -57,11 +57,39 @@ subnets = {
     name                   = "snet-1"
     address_prefix         = "10.0.0.0/24"
     network_security_group = "nsg1"
+    route_table            = "app1"
   }
 
   subnet2 = {
     name                   = "snet-2"
     address_prefix         = "10.0.1.0/24"
     network_security_group = "nsg1"
+  }
+
+  subnet3 = {
+    name           = "snet-3"
+    address_prefix = "10.0.2.0/24"
+  }
+}
+
+user_defined_routes = {
+  app1 = {
+    name = "rt-app1"
+    routes = [{
+      name                   = "route1"
+      address_prefix         = "10.0.0.0/24"
+      next_hop_type          = "VirtualAppliance"
+      next_hop_in_ip_address = "10.20.30.40"
+    }]
+  }
+
+  app2 = {
+    name = "rt-app2"
+    routes = [{
+      name                   = "route1"
+      address_prefix         = "10.0.1.0/24"
+      next_hop_type          = "VirtualAppliance"
+      next_hop_in_ip_address = "11.22.33.44"
+    }]
   }
 }

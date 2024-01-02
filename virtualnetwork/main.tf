@@ -26,6 +26,24 @@ resource "azurerm_network_security_group" "nsg" {
   }
 }
 
+resource "azurerm_route_table" "user_defined_route" {
+  for_each = var.user_defined_routes
+
+  name                = each.value.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.resource_group.name
+
+  dynamic "route" {
+    for_each = each.value.routes
+    content {
+      name                   = route.value.name
+      address_prefix         = route.value.address_prefix
+      next_hop_type          = route.value.next_hop_type
+      next_hop_in_ip_address = route.value.next_hop_in_ip_address
+    }
+  }
+}
+
 resource "azurerm_virtual_network" "vnet" {
   name                = var.virtual_network_name
   location            = var.location
@@ -33,20 +51,39 @@ resource "azurerm_virtual_network" "vnet" {
   address_space       = ["10.0.0.0/16"]
 
 
-  dynamic "subnet" {
-    for_each = var.subnets
-    content {
-      name           = subnet.value.name
-      address_prefix = subnet.value.address_prefix
-      security_group = azurerm_network_security_group.nsg[subnet.value.network_security_group].id
-    }
-  }
-
-  # lifecycle {
-  #   ignore_changes = [
-  #     subnet
-  #   ]
+  # Dynamic example:
+  # ----------------
+  # dynamic "subnet" {
+  #   for_each = var.subnets
+  #   content {
+  #     name           = subnet.value.name
+  #     address_prefix = subnet.value.address_prefix
+  #     security_group = azurerm_network_security_group.nsg[subnet.value.network_security_group].id
+  #   }
   # }
+}
+
+resource "azurerm_subnet" "subnet" {
+  for_each = var.subnets
+
+  name                 = each.value.name
+  resource_group_name  = azurerm_resource_group.resource_group.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [each.value.address_prefix]
+}
+
+resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
+  for_each = { for k, v in var.subnets : k => v if v.network_security_group != null }
+
+  subnet_id                 = azurerm_subnet.subnet[each.key].id
+  network_security_group_id = azurerm_network_security_group.nsg[each.value.network_security_group].id
+}
+
+resource "azurerm_subnet_route_table_association" "subnet_route_table_association" {
+  for_each = { for k, v in var.subnets : k => v if v.route_table != null }
+
+  subnet_id      = azurerm_subnet.subnet[each.key].id
+  route_table_id = azurerm_route_table.user_defined_route[each.value.route_table].id
 }
 
 resource "azurerm_virtual_network_peering" "spoke_to_hub" {
